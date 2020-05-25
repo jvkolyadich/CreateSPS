@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter.filedialog import askopenfilenames, asksaveasfilename
 from tkinter.messagebox import showinfo
 import tkinter.font
-import io
+import zlib, base64, tempfile, io
 
 class Converter:
 
@@ -13,6 +13,12 @@ class Converter:
     try:
         root.iconphoto(True, PhotoImage(file='./icon.png'))
     except:
+        ICON = zlib.decompress(base64.b64decode('eJxjYGAEQgEBBiDJwZDBy'
+        'sAgxsDAoAHEQCEGBQaIOAg4sDIgACMUj4JRMApGwQgF/ykEAFXxQRc='))
+        _, ICON_PATH = tempfile.mkstemp()
+        with open(ICON_PATH, 'wb') as icon_file:
+            icon_file.write(ICON)
+        root.iconbitmap(default=ICON_PATH)
         pass
 
     # GUI attributes
