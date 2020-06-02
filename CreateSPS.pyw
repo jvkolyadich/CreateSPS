@@ -23,8 +23,8 @@ class Converter:
         pass
 
     # GUI attributes
-    windowWidth = 650
-    windowHeight = 500
+    windowWidth = 665
+    windowHeight = 495
     entryWidth = 60
     entryFont = tkinter.font.Font(family = "helvetica", size = 10)
 
@@ -35,7 +35,8 @@ class Converter:
     leftTopContainer = Frame(leftContainer)
     leftBottomContainer = Frame(leftContainer)
     leftBottomTopContainer = Frame(leftBottomContainer)
-    fileList = Listbox(leftTopContainer)
+    fileScrollbar = Scrollbar(leftTopContainer)
+    fileList = Listbox(leftTopContainer, yscrollcommand = fileScrollbar.set)
     sortButton = Button(leftBottomTopContainer)
     topContainer = Frame(rightContainer)
     formInfoButton = Button(topContainer)
@@ -103,6 +104,9 @@ class Converter:
                                   font = self.entryFont,
                                   command = self.saveFile)
 
+        ## Scrollbar
+        self.fileScrollbar.config(command = self.fileList.yview)
+
         ## File list
         self.fileList.configure(height = 20,
                                 font = self.entryFont)
@@ -130,6 +134,9 @@ class Converter:
         
         self.leftBottomTopContainer.pack(side = TOP,
                                          pady = 8)
+
+        self.fileScrollbar.pack(side = RIGHT,
+                           fill = Y)
 
         self.fileList.pack(side = LEFT)
 
@@ -163,7 +170,6 @@ class Converter:
 
         self.saveButton.pack(side = TOP,
                              pady = 10)
-
 
         self.sortButton.pack(side = BOTTOM)
 
