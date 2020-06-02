@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 from tkinter.filedialog import askopenfilenames, asksaveasfilename
 from tkinter.messagebox import showinfo
 import tkinter.font
@@ -22,22 +23,30 @@ class Converter:
         pass
 
     # GUI attributes
-    windowWidth = 600
-    windowHeight = 450
+    windowWidth = 650
+    windowHeight = 500
     entryWidth = 60
     entryFont = tkinter.font.Font(family = "helvetica", size = 10)
 
     # Create GUI Widgets
-    topContainer = Frame(root)
+    mainContainer = Frame(root)
+    leftContainer = Frame(mainContainer)
+    rightContainer = Frame(mainContainer)
+    leftTopContainer = Frame(leftContainer)
+    leftBottomContainer = Frame(leftContainer)
+    leftBottomTopContainer = Frame(leftBottomContainer)
+    fileList = Listbox(leftTopContainer)
+    sortButton = Button(leftBottomTopContainer)
+    topContainer = Frame(rightContainer)
     formInfoButton = Button(topContainer)
     openButton = Button(topContainer)
-    keywordLabel = Label(root)
-    keywordEntry = Entry(root)
-    titleLabel = Label(root)
-    titleEntry = Entry(root)
-    descLabel = Label(root)
-    descEntry = Text(root)
-    saveButton = Button(root)
+    keywordLabel = Label(rightContainer)
+    keywordEntry = Entry(rightContainer)
+    titleLabel = Label(rightContainer)
+    titleEntry = Entry(rightContainer)
+    descLabel = Label(rightContainer)
+    descEntry = Text(rightContainer)
+    saveButton = Button(rightContainer)
 
     # Variables
     defaultKeywords = "Verse, Chorus, Куплет, Припев"
@@ -63,43 +72,100 @@ class Converter:
         self.root.resizable(0, 0)
 
         # Configure widgets
-
         ## Formatting info button
         self.formInfoButton.configure(text = "Formatting info",
+                                      font = self.entryFont,
                                       command = self.showFormattingInfo)
         
         ## Open button
         self.openButton.configure(text = "Open song files",
+                                  font = self.entryFont,
                                   command = self.openFiles)
         ## Keyword label and entry
-        self.keywordLabel.configure(text = "Keywords for verses & chorus:")
+        self.keywordLabel.configure(text = "Keywords for verses & chorus:",
+                                    font = self.entryFont)
         self.keywordEntry.insert(END, self.defaultKeywords)
         self.keywordEntry.configure(width = self.entryWidth,
                                     font = self.entryFont)
         ## Title label and entry
-        self.titleLabel.configure(text = "Songbook Title:")
+        self.titleLabel.configure(text = "Songbook Title:",
+                                  font = self.entryFont)
         self.titleEntry.configure(width = self.entryWidth,
                                   font = self.entryFont)
         ## Description label and entry
-        self.descLabel.configure(text = "Songbook Description (optional):")
+        self.descLabel.configure(text = "Songbook Description (optional):",
+                                 font = self.entryFont)
         self.descEntry.configure(width = self.entryWidth,
                                  font = self.entryFont,
                                  height = 8)
         ## Save button
         self.saveButton.configure(text = "Save as songbook",
+                                  font = self.entryFont,
                                   command = self.saveFile)
 
+        ## File list
+        self.fileList.configure(height = 20,
+                                font = self.entryFont)
+
+        ## Sort button
+        self.sortButton.configure(text = "Sort by title",
+                                  font = self.entryFont,
+                                  width = 10,
+                                  command = self.sortList)
+
         # Pack widgets into main window
-        self.topContainer.pack(side = TOP, pady = 20)
-        self.formInfoButton.pack(side = LEFT, padx = 10)
-        self.openButton.pack(side = RIGHT, padx = 10)
-        self.keywordLabel.pack(side = TOP, pady = 5)
-        self.keywordEntry.pack(side = TOP, pady = 10)
-        self.titleLabel.pack(side = TOP, pady = 5)
-        self.titleEntry.pack(side = TOP, pady = 10)
-        self.descLabel.pack(side = TOP, pady = 5)
-        self.descEntry.pack(side = TOP, pady = 10)
-        self.saveButton.pack(side = TOP, pady = 10)
+        self.mainContainer.pack(side = TOP,
+                                padx = 20,
+                                pady = 10)
+
+        self.leftContainer.pack(side = LEFT,
+                                padx = 10)
+
+        self.rightContainer.pack(side = RIGHT,
+                                 padx = 10)
+
+        self.leftTopContainer.pack(side = TOP)
+
+        self.leftBottomContainer.pack(side = TOP)
+        
+        self.leftBottomTopContainer.pack(side = TOP,
+                                         pady = 8)
+
+        self.fileList.pack(side = LEFT)
+
+
+        self.topContainer.pack(side = TOP,
+                               pady = 20)
+
+        self.formInfoButton.pack(side = LEFT,
+                                 padx = 10)
+
+        self.openButton.pack(side = RIGHT,
+                             padx = 10)
+
+        self.keywordLabel.pack(side = TOP,
+                               pady = 5)
+
+        self.keywordEntry.pack(side = TOP,
+                               pady = 10)
+
+        self.titleLabel.pack(side = TOP,
+                             pady = 5)
+
+        self.titleEntry.pack(side = TOP,
+                             pady = 10)
+
+        self.descLabel.pack(side = TOP,
+                            pady = 5)
+
+        self.descEntry.pack(side = TOP,
+                            pady = 10)
+
+        self.saveButton.pack(side = TOP,
+                             pady = 10)
+
+
+        self.sortButton.pack(side = BOTTOM)
 
     def openFiles(self):
 
@@ -107,6 +173,7 @@ class Converter:
                                         filetypes=[("Text Documents","*.txt"),])
         if (opened_filenames_str != ""):
             self.openedFilenames = self.root.tk.splitlist(opened_filenames_str)
+            self.updateFileList()
 
     def saveFile(self):
         if (self.verifyInputs()):
@@ -221,7 +288,37 @@ class Converter:
     def showFormattingInfo(self):
 
         showinfo("Song formatting", "Songs must be formatted as:\n( [ ] = optional )\n\nKeyword [additional text]\n[Lyrics for line 1]\n[Lyrics for line 2]\n[etc.]\n\nBasically the same way as in softProjector\n\nThe first line of the first stanza of\neach song will be the song's title")
-        
+
+    def sortList(self):
+        unsorted_list = list(self.openedFilenames)
+        sort_key = []
+
+        for filename in unsorted_list:
+            filenamestart = filename.rfind("/") + 1
+            filenameend = filename.rfind(".")
+            filename = filename[filenamestart:filenameend]
+            sort_key.append(filename)
+            
+        for key in range(0, len(sort_key)):
+            try:
+                sort_key[key] = int(sort_key[key])
+            except:
+                pass
+
+        sorted_list = [x for _,x in sorted(zip(sort_key,unsorted_list))]
+
+        self.openedFilenames = tuple(sorted_list)
+        self.updateFileList()
+
+
+    def updateFileList(self):
+        self.fileList.delete(0, END)
+        for i in range(0, len(self.openedFilenames)):
+            filename = self.openedFilenames[i]
+            filenamestart = filename.rfind("/") + 1
+            filename = filename[filenamestart:]
+            self.fileList.insert(END, filename)
+
     def run(self):
 
         self.root.mainloop()
