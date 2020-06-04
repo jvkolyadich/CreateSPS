@@ -192,7 +192,6 @@ class Converter:
                 songbook_text = self.createSongbook()
                 with io.open(self.saveFilename, "w+", encoding="utf-8") as songbook_file:
                     songbook_file.write(songbook_text)
-                    songbook_file.close()
                 showinfo("Done", "Songbook created.")
 
     def verifyInputs(self):
@@ -236,16 +235,11 @@ class Converter:
         keywords_str = keywords_str.replace(" ", "")
         keywords = keywords_str.split(",")
 
-        song_index = 0
-
-        for song_filename in self.openedFilenames:
-
+        for song_index, song_filename in enumerate(self.openedFilenames):
             song_index += 1
 
             with io.open(song_filename, "r", encoding="utf-8") as song_file:
-
                 song_text = song_file.read().lstrip()
-                song_file.close()
 
             # Use first line of lyrics as each song's title
             song_title_start = song_text.find("\n") + 1
@@ -305,9 +299,9 @@ class Converter:
             filename = filename[filenamestart:filenameend]
             sort_key.append(filename)
             
-        for key in range(0, len(sort_key)):
+        for index, key in enumerate(sort_key):
             try:
-                sort_key[key] = int(sort_key[key])
+                sort_key[index] = int(key)
             except:
                 pass
 
@@ -319,8 +313,7 @@ class Converter:
 
     def updateFileList(self):
         self.fileList.delete(0, END)
-        for i in range(0, len(self.openedFilenames)):
-            filename = self.openedFilenames[i]
+        for filename in self.openedFilenames:
             filenamestart = filename.rfind("/") + 1
             filename = filename[filenamestart:]
             self.fileList.insert(END, filename)
