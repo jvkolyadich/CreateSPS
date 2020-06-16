@@ -255,8 +255,11 @@ class Converter:
 
             for keyword in keywords:
 
+                # Keyword must be the first word in a line
+                keyword = "\n" + keyword.upper()
+
                 # Search for keywords using all uppercase text
-                word_location = song_text.upper().find(keyword.upper())
+                word_location = song_text.upper().find(keyword)
                 while (word_location != -1):
                     
                     # Unless it's the first keyword, insert "@S" before each one
