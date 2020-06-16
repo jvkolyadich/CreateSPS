@@ -227,6 +227,11 @@ class Converter:
         description = self.descEntry.get("1.0", END)
         # Removes the extra "\n" tkinter adds when getting the description
         description = description[:(len(description) - 1)]
+        # Removes duplicate newlines
+        duplicate_location = description.find("\n\n")
+        while (duplicate_location != -1):
+            description = description.replace("\n\n", "\n")
+            duplicate_location = description.find("\n\n")
         description = description.replace("\n", "@%")
         description = "##" + description + "\n"
         songbook_text += description
