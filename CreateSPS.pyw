@@ -235,12 +235,17 @@ class Converter:
         keywords_str = keywords_str.replace(" ", "")
         keywords = keywords_str.split(",")
 
-        for song_index, song_filename in enumerate(self.openedFilenames):
-            song_index += 1
+        for song_index, song_filename in enumerate(self.openedFilenames, start = 1):
 
             with io.open(song_filename, "r", encoding="utf-8") as song_file:
                 song_text = song_file.read().lstrip()
 
+            # Removes duplicate newlines
+            duplicate_location = song_text.find("\n\n")
+            while (duplicate_location != -1):
+                song_text = song_text.replace("\n\n", "\n")
+                duplicate_location = song_text.find("\n\n")
+            
             # Create the song's title
             song_title_start = song_text.find("\n") + 1
 
@@ -278,15 +283,9 @@ class Converter:
                     
                     # Unless it's the first keyword, insert "@S" before each one
                     if(word_location != 0):
-                        song_text = song_text[:(word_location - 2)] + "@$" + song_text[word_location:]
+                        song_text = song_text[:(word_location)] + "@$" + song_text[word_location + 1:]
                         
                     word_location = song_text.upper().find(keyword.upper(), (word_location + 1))
-
-            # Removes duplicate newlines
-            duplicate_location = song_text.find("\n\n")
-            while (duplicate_location != -1):
-                song_text = song_text.replace("\n\n", "\n")
-                duplicate_location = song_text.find("\n\n")
 
             # Replaces newlines with "@%"
             song_text = song_text.replace("\n", "@%")
