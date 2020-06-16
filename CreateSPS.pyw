@@ -241,17 +241,31 @@ class Converter:
             with io.open(song_filename, "r", encoding="utf-8") as song_file:
                 song_text = song_file.read().lstrip()
 
-            # Use first line of lyrics as each song's title
+            # Create the song's title
             song_title_start = song_text.find("\n") + 1
-            song_title_end = song_text.find("\n", song_title_start)
+
+            second_newline = song_text.find("\n", song_title_start)
+            endchars = "(."
+            song_title_end = -1
+            for char in endchars:
+                loc = song_text.rfind(char, song_title_start, second_newline)
+                if (loc > song_title_end):
+                    song_title_end = loc
+            if (song_title_end == -1):
+                song_title_end = second_newline
+
             song_title = song_text[song_title_start:song_title_end]
+
+            if (song_title[len(song_title) - 1] == " "):
+                song_title = song_title[:len(song_title) - 1]
             # Remove punctuation and extra whitespace
             chars = ".,!?-\""
             for char in chars:
                 if char in song_title:
                     song_title = song_title.replace(char, "")
-                    
-            song_title = song_title.replace("  ", " ")
+
+            while ("  " in song_title):
+                song_title = song_title.replace("  ", " ")
 
             for keyword in keywords:
 
